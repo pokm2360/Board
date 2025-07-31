@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>검색 결과</title>
+    <meta charset="UTF-8">
+</head>
+<body>
+<div id="posts_list">
+    <table id="table" class="table table-horizontal">
+        <thead id="thead">
+        <tr>
+            <th>번호</th>
+            <th class="col-md-6 text-center">제목</th>
+            <th>작성자</th>
+            <th>작성일</th>
+            <th>조회수</th>
+        </tr>
+        </thead>
+        <tbody id="tbody">
+        <tr th:each="post : ${searchList}">
+            <td th:text="${post.id}"></td>
+            <td><a th:href="@{/posts/read/{id}(id=${post.id})}" th:text="${post.title}"></a></td>
+            <td th:text="${post.writer}"></td>
+            <td th:text="${post.modifiedDate}"></td>
+            <td th:text="${post.view}"></td>
+        </tr>
+        </tbody>
+    </table>
+
+    <div class="text-right">
+        <a th:href="@{/posts/write}" class="btn btn-primary bi bi-pencil-fill"> 글쓰기</a>
+    </div>
+
+    <div class="pagination justify-content-center">
+        <a th:href="@{/posts/search(keyword=${keyword}, page=${previous})}"
+           class="btn btn-lg bi bi-caret-left-square-fill"
+           th:classappend="${!hasPrev} ? ' disabled'"></a>
+
+        <a th:href="@{/posts/search(keyword=${keyword}, page=${next})}"
+           class="btn btn-lg bi bi-caret-right-square-fill"
+           th:classappend="${!hasNext} ? ' disabled'"></a>
+    </div>
+</div>
+</body>
+</html>
