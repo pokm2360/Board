@@ -116,7 +116,7 @@ public class PostController {
     @PostMapping("/posts/delete/{id}")
     public String delete(@PathVariable Long id) {
         postService.delete(id);
-        return "redirect:/list";
+        return "redirect:/";
     }
 
     // 검색 페이지

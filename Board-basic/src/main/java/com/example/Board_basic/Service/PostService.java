@@ -4,6 +4,7 @@ import com.example.Board_basic.Dto.PostDto;
 import com.example.Board_basic.Entity.Post;
 import com.example.Board_basic.Entity.PostLike;
 import com.example.Board_basic.Entity.PostView;
+import com.example.Board_basic.Repository.CommentRepository;
 import com.example.Board_basic.Repository.PostLikeRepository;
 import com.example.Board_basic.Repository.PostRepository;
 import com.example.Board_basic.Repository.PostViewRepository;
@@ -24,6 +25,7 @@ public class PostService {
     private final PostRepository postRepository;
     private final PostLikeRepository postLikeRepository;
     private final PostViewRepository postViewRepository;
+    private final CommentRepository commentRepository;
 
     /**
      * ✅ 전체 게시글 페이징 조회
@@ -141,8 +143,14 @@ public class PostService {
      * ✅ 게시글 삭제
      */
     @Transactional
-    public void delete(Long id) {
-        postRepository.deleteById(id);
+    public void delete(Long postId) {
+        // 1) 먼저 자식들 제거
+        postViewRepository.deleteByPostId(postId);
+        postLikeRepository.deleteByPostId(postId);
+        commentRepository.deleteByPostId(postId);
+
+        // 2) 마지막에 게시글 삭제
+        postRepository.deleteById(postId);
     }
 
 }

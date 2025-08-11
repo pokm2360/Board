@@ -52,6 +52,20 @@
 
     <div class="d-flex justify-content-between mb-4">
         <a th:href="@{/list}" class="btn btn-secondary">목록으로</a>
+
+        <!-- 작성자 또는 관리자에게만 노출 -->
+        <div sec:authorize="isAuthenticated()"
+             th:if="${#authentication.principal?.user?.nickname == posts.writer} or ${#authorization.expression('hasRole(''ADMIN'')')}">
+            <form th:action="@{'/posts/delete/' + ${posts.id}}"
+                  method="post"
+                  class="d-inline"
+                  onsubmit="return confirm('정말 삭제하시겠습니까?');">
+                <!-- CSRF 필요시 복구
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                -->
+                <button type="submit" class="btn btn-danger">삭제</button>
+            </form>
+        </div>
     </div>
 
     <!-- 댓글 -->
