@@ -13,23 +13,45 @@ public class CommentController {
 
     private final CommentService commentService;
 
-    // 댓글 등록
+    /** 원댓글 등록 */
     @PostMapping
-    public String add(@PathVariable Long postId,
-                      @RequestParam String content,
+    public String add(@PathVariable("postId") Long postId,
+                      @RequestParam("content") String content,
                       @AuthenticationPrincipal(expression = "user.nickname") String nickname) {
 
         if (nickname == null || nickname.isBlank()) {
-            return "redirect:/login";
+            return "redirect:/loginform";
         }
-        commentService.add(postId, content, nickname);
+        if (content == null || content.trim().isEmpty()) {
+            return "redirect:/posts/read/" + postId;
+        }
+
+        commentService.add(postId, content.trim(), nickname);
         return "redirect:/posts/read/" + postId;
     }
 
-    // 댓글 삭제
+    /** 대댓글 등록 */
+    @PostMapping("/{parentId}/reply")
+    public String reply(@PathVariable("postId") Long postId,
+                        @PathVariable("parentId") Long parentId,
+                        @RequestParam("content") String content,
+                        @AuthenticationPrincipal(expression = "user.nickname") String nickname) {
+
+        if (nickname == null || nickname.isBlank()) {
+            return "redirect:/loginform";
+        }
+        if (content == null || content.trim().isEmpty()) {
+            return "redirect:/posts/read/" + postId;
+        }
+
+        commentService.reply(postId, parentId, content.trim(), nickname);
+        return "redirect:/posts/read/" + postId;
+    }
+
+    /** 댓글 삭제 (본인/관리자) */
     @PostMapping("/{commentId}/delete")
-    public String delete(@PathVariable Long postId,
-                         @PathVariable Long commentId,
+    public String delete(@PathVariable("postId") Long postId,
+                         @PathVariable("commentId") Long commentId,
                          @AuthenticationPrincipal(expression = "user.nickname") String nickname,
                          @AuthenticationPrincipal(expression = "user.role") String role) {
 

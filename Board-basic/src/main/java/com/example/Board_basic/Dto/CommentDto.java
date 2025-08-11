@@ -12,6 +12,8 @@ import java.time.format.DateTimeFormatter;
 public class CommentDto {
     private Long id;
     private Long postId;
+    private Long parentId;
+    private int depth;
     private String content;
     private String writer;
     private String createdDate;

@@ -1,128 +1,199 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="https://www.thymeleaf.org/extras/spring-security6">
 <head>
-    <title>게시글 읽기</title>
-    <meta charset="UTF-8">
-    <link rel="stylesheet" href="/css/app.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.6.0/font/bootstrap-icons.css">
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <meta charset="UTF-8" />
+    <title>게시글 보기</title>
+    <link rel="stylesheet" href="/css/app.css" />
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" />
 </head>
 <body>
 
-<!-- Header / Nav -->
 <div th:replace="layout :: header"></div>
 <div th:replace="layout :: nav"></div>
 
-<!-- 본문 -->
-<div class="container mt-5">
-    <div class="card">
-        <div class="card-header d-flex justify-content-between">
-            <span>번호: <span th:text="${posts.id}"></span></span>
-            <span th:text="${posts.createdDate}"></span>
-        </div>
-
-        <div class="card-header d-flex justify-content-between">
-            <span>작성자: <span th:text="${posts.writer}"></span></span>
-            <span><i class="bi bi-eye-fill"></i> <span th:text="${posts.view}"></span></span>
-        </div>
-
-        <div class="card-body">
-            <div class="form-group mb-3">
-                <label for="title">제목</label>
-                <input type="text" class="form-control" id="title" th:value="${posts.title}" readonly>
-            </div>
-            <div class="form-group">
-                <label for="content">내용</label>
-                <textarea rows="8" class="form-control" id="content" readonly th:text="${posts.content}"></textarea>
-            </div>
+<div class="container my-4">
+    <!-- 제목/메타 -->
+    <div class="mb-3">
+        <h3 th:text="${posts.title}">제목</h3>
+        <div class="text-muted">
+            <span>작성자: </span><b th:text="${posts.writer}">writer</b>
+            <span class="mx-2">·</span>
+            <span th:text="${posts.createdDate}">2025-08-11 12:00</span>
+            <span class="mx-2">·</span>
+            <span>조회수: </span><span th:text="${posts.view}">0</span>
         </div>
     </div>
 
-    <!-- 버튼 -->
-    <div class="mt-3 text-right">
-        <a href="/" class="btn btn-secondary bi bi-arrow-return-left"> 목록</a>
+    <!-- 좋아요 -->
+    <div class="mb-3 d-flex align-items-center">
+        <form id="likeForm"
+              th:action="@{'/posts/' + ${posts.id} + '/like'}"
+              method="post" class="mr-2"
+              sec:authorize="isAuthenticated()">
+            <!-- CSRF 필요시 복구
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+            -->
+            <button id="likeBtn" type="submit"
+                    th:class="'btn btn-sm ' + (${liked} ? 'btn-danger' : 'btn-outline-danger')">
+                <i class="bi bi-heart-fill"></i>
+                <span th:text="${liked} ? '좋아요 취소' : '좋아요'">좋아요</span>
+            </button>
+        </form>
+        <span class="text-muted">❤️ <b id="likeCount" th:text="${likeCount}">0</b></span>
+    </div>
 
-        <!-- 수정 및 삭제는 로그인 상태 + 본인이 작성한 글일 경우만 표시 -->
-        <a th:if="${user != null and user.nickname == posts.writer}"
-           th:href="@{/posts/update/{id}(id=${posts.id})}"
-           class="btn btn-primary bi bi-pencil-square"> 수정</a>
+    <!-- 본문 -->
+    <div class="card mb-4">
+        <div class="card-body" style="white-space: pre-wrap;" th:text="${posts.content}">
+            본문 내용
+        </div>
+    </div>
 
-        <button th:if="${user != null and user.nickname == posts.writer}"
-                type="button"
-                id="btn-delete"
-                class="btn btn-danger bi bi-trash"> 삭제</button>
+    <div class="d-flex justify-content-between mb-4">
+        <a th:href="@{/list}" class="btn btn-secondary">목록으로</a>
     </div>
 
     <!-- 댓글 -->
-    <hr/>
-    <div id="comments">
+    <h5 class="mb-3">댓글</h5>
 
-        <h5>댓글</h5>
+    <div th:if="${#lists.isEmpty(comments)}" class="text-muted mb-3">아직 댓글이 없습니다.</div>
 
-        <!-- 목록 -->
-        <div th:if="${#lists.isEmpty(comments)}">아직 댓글이 없습니다.</div>
-        <ul class="list-group mb-3" th:if="${!#lists.isEmpty(comments)}">
-            <li class="list-group-item d-flex justify-content-between align-items-start"
-                th:each="c : ${comments}">
+    <ul class="list-group mb-3" th:if="${!#lists.isEmpty(comments)}">
+        <li class="list-group-item"
+            th:each="c : ${comments}"
+            th:style="|margin-left: ${(c.depth == null ? 0 : c.depth) * 16}px|">
+            <div class="d-flex justify-content-between align-items-start">
                 <div>
-                    <div class="fw-bold" th:text="${c.writer}">닉네임</div>
-                    <div th:text="${c.content}">내용</div>
-                    <small class="text-muted" th:text="${c.createdDate}">2025.08.11 12:00</small>
+                    <span th:if="${c.depth != null and c.depth > 0}" class="text-muted mr-1">↳</span>
+                    <b th:text="${c.writer}">닉네임</b>
+                    <small class="text-muted ml-2" th:text="${c.createdDate}">2025.08.11 12:00</small>
                 </div>
 
-                <!-- 본인 또는 관리자만 삭제 버튼 -->
-                <div
-                        xmlns:sec="https://www.thymeleaf.org/extras/spring-security6"
-                        sec:authorize="isAuthenticated()">
+                <div sec:authorize="isAuthenticated()">
                     <form th:if="${#authentication.principal?.user?.nickname == c.writer} or ${#authorization.expression('hasRole(''ADMIN'')')}"
                           th:action="@{'/posts/' + ${posts.id} + '/comments/' + ${c.id} + '/delete'}"
-                          method="post" style="display:inline;">
-<!--                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />-->
+                          method="post" class="m-0">
+                        <!-- CSRF 필요시 복구
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                        -->
                         <button type="submit" class="btn btn-sm btn-outline-danger">삭제</button>
                     </form>
                 </div>
-            </li>
-        </ul>
+            </div>
 
-        <!-- 작성 폼: 로그인 사용자만 -->
-        <div xmlns:sec="https://www.thymeleaf.org/extras/spring-security6" sec:authorize="isAuthenticated()">
+            <div class="mt-2" th:text="${c.content}">댓글 내용</div>
+
+            <!-- 답글 폼 토글 -->
+            <div class="mt-2" sec:authorize="isAuthenticated()">
+                <a href="#" class="btn btn-link p-0 small reply-toggle">답글</a>
+                <form th:action="@{'/posts/' + ${posts.id} + '/comments/' + ${c.id} + '/reply'}"
+                      method="post" class="mt-2 reply-form d-none">
+                    <!-- CSRF 필요시 복구
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                    -->
+                    <textarea name="content" class="form-control" rows="2" maxlength="1000" required></textarea>
+                    <div class="text-right mt-2">
+                        <button type="submit" class="btn btn-sm btn-primary">등록</button>
+                    </div>
+                </form>
+            </div>
+        </li>
+    </ul>
+
+    <!-- 새 댓글 작성 -->
+    <div class="card" sec:authorize="isAuthenticated()">
+        <div class="card-body">
             <form th:action="@{'/posts/' + ${posts.id} + '/comments'}" method="post">
-<!--                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />-->
+                <!-- CSRF 필요시 복구
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                -->
                 <div class="form-group">
-        <textarea name="content" class="form-control" rows="3" maxlength="1000"
-                  placeholder="댓글을 입력하세요." required></textarea>
+          <textarea name="content" class="form-control" rows="3" maxlength="1000"
+                    placeholder="댓글을 입력하세요." required></textarea>
                 </div>
-                <div class="mt-2 text-right">
-                    <button type="submit" class="btn btn-primary">등록</button>
+                <div class="text-right">
+                    <button type="submit" class="btn btn-primary">댓글 등록</button>
                 </div>
             </form>
         </div>
+    </div>
 
-        <div xmlns:sec="https://www.thymeleaf.org/extras/spring-security6" sec:authorize="isAnonymous()"
-             class="text-muted">
-            댓글을 작성하려면 <a th:href="@{/login}">로그인</a>하세요.
-        </div>
-
+    <div class="text-muted" sec:authorize="isAnonymous()">
+        댓글을 작성하려면 <a th:href="@{/loginform}">로그인</a>하세요.
     </div>
 </div>
 
-<!-- Footer -->
-<div th:replace="layout :: footer"></div>
+<!-- 공통 스크립트 (jQuery/Popper/Bootstrap) -->
+<div th:replace="layout :: scripts"></div>
 
-<!-- JS -->
+<!-- 대댓글 토글 + 좋아요 AJAX -->
 <script>
+    // 답글 폼 토글 (각 댓글별 독립)
     document.addEventListener('DOMContentLoaded', function () {
-        const deleteBtn = document.querySelector("#btn-delete");
-        if (deleteBtn) {
-            deleteBtn.addEventListener("click", function () {
-                const postId = /*[[${posts.id}]]*/ '0';
-                if (confirm("정말 삭제하시겠습니까?")) {
-                    fetch(`/posts/delete/${postId}`, { method: 'POST' })
-                        .then(() => window.location.href = "/");
-                }
-            });
-        }
+      document.querySelectorAll('.reply-toggle').forEach(function (btn) {
+        btn.addEventListener('click', function (e) {
+          e.preventDefault();
+          var container = this.closest('.list-group-item');
+          if (!container) return;
+          var form = container.querySelector('.reply-form');
+          if (form) form.classList.toggle('d-none');
+        });
+      });
     });
+
+    // 좋아요 AJAX (뒤로가기 히스토리 누적 방지 포함)
+    (function () {
+      var form = document.getElementById('likeForm');
+      if (!form) return;
+
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+
+        var action = form.getAttribute('action');
+        var tokenInput = form.querySelector('input[type="hidden"]');
+        var body = new URLSearchParams();
+        if (tokenInput) body.append(tokenInput.name, tokenInput.value);
+
+        fetch(action, {
+          method: 'POST',
+          headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'Accept': 'application/json',
+            'Content-Type': 'application/x-www-form-urlencoded'
+          },
+          body: body.toString()
+        })
+        .then(function (res) {
+          if (res.status === 401) { window.location.href = '/loginform'; return null; }
+          return res.json();
+        })
+        .then(function (data) {
+          if (!data) return;
+          var btn = document.getElementById('likeBtn');
+          var label = btn.querySelector('span');
+          var countEl = document.getElementById('likeCount');
+
+          if (data.liked) {
+            btn.classList.remove('btn-outline-danger');
+            btn.classList.add('btn-danger');
+            label.textContent = '좋아요 취소';
+          } else {
+            btn.classList.remove('btn-danger');
+            btn.classList.add('btn-outline-danger');
+            label.textContent = '좋아요';
+          }
+          if (countEl) countEl.textContent = data.count;
+
+          if (window.history && history.replaceState) {
+            history.replaceState(null, '', location.href);
+          }
+        })
+        .catch(function (err) {
+          console.error('like toggle failed:', err);
+        });
+      });
+    })();
 </script>
 
 </body>
