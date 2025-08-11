@@ -1,47 +1,33 @@
 package com.example.Board_basic.Entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import jakarta.validation.constraints.NotBlank;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
 @Entity
-@Getter
-@Setter
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-@EntityListeners(AuditingEntityListener.class)
+@Getter @Builder(toBuilder = true)
+@NoArgsConstructor @AllArgsConstructor
 public class Comment {
-    @Id
-    @GeneratedValue
+
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String comment;
-
-    @CreatedDate
-    @Column(updatable = false)
-    private LocalDateTime createdDate;
-
-    @LastModifiedDate
-    private LocalDateTime modifiedDate;
-
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     private Post post;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    private User user;
+    @NotBlank
+    @Column(nullable = false, length = 1000)
+    private String content;
 
-    public void updateContent(String content) {
-        this.comment = content;
-    }
+    @Column(nullable = false, length = 100)
+    private String writer;          // 작성자 닉네임
+
+    @Column(nullable = false)
+    private LocalDateTime createdDate;
+
+    private LocalDateTime modifiedDate;
 }
 
 

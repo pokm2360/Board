@@ -1,41 +1,28 @@
 package com.example.Board_basic.Dto;
 
 import com.example.Board_basic.Entity.Comment;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
+import java.time.format.DateTimeFormatter;
+
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class CommentDto {
+    private Long id;
+    private Long postId;
+    private String content;
+    private String writer;
+    private String createdDate;
 
-    @Getter
-    @Setter
-    public static class Request {
-        private Long id;
-        private String comment;
-        private Long postId;
-        private Long userId;
-
-        public Comment toEntity() {
-            return Comment.builder()
-                    .id(id)
-                    .comment(comment)
-                    .build();
-        }
-    }
-
-    @Getter
-    @Setter
-    public static class Response {
-        private Long id;
-        private String comment;
-        private String createdDate;
-        private String writer;
-
-        public Response(Comment comment) {
-            this.id = comment.getId();
-            this.comment = comment.getComment();
-            this.createdDate = comment.getCreatedDate();
-            this.writer = comment.getUser() != null ? comment.getUser().getUsername() : null;
-        }
+    public static CommentDto fromEntity(Comment c) {
+        return CommentDto.builder()
+                .id(c.getId())
+                .postId(c.getPost().getId())
+                .content(c.getContent())
+                .writer(c.getWriter())
+                .createdDate(c.getCreatedDate().format(DateTimeFormatter.ofPattern("yyyy.MM.dd HH:mm")))
+                .build();
     }
 }
-

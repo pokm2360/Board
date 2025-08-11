@@ -3,8 +3,14 @@
 <head>
     <title>검색 결과</title>
     <meta charset="UTF-8">
+    <link rel="stylesheet" href="/css/app.css">
 </head>
 <body>
+
+<div th:replace="layout :: header"></div>
+<div th:replace="layout :: nav"></div>
+
+
 <div id="posts_list">
     <table id="table" class="table table-horizontal">
         <thead id="thead">
@@ -41,5 +47,9 @@
            th:classappend="${!hasNext} ? ' disabled'"></a>
     </div>
 </div>
+
+<!-- Footer -->
+<div th:replace="layout :: footer"></div>
+
 </body>
 </html>

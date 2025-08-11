@@ -1,53 +1,47 @@
 package com.example.Board_basic.Dto;
 
 import com.example.Board_basic.Entity.Post;
-import com.example.Board_basic.Entity.User;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Data
+@Getter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class PostDto {
+    private Long id;
+    private String title;
+    private String content;
+    private String writer;
+    private int view;
+    private String createdDate;
 
-    @Getter
-    @Builder
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class Request {
-
-        private String title;
-        private String content;
-
-        public Post toEntity() {
-            return Post.builder()
-                    .title(this.title)
-                    .content(this.content)
-                    .build();
-        }
+    public static PostDto fromEntity(Post post) {
+        return PostDto.builder()
+                .id(post.getId())
+                .title(post.getTitle())
+                .content(post.getContent())
+                .writer(post.getWriter())
+                .view(post.getView())
+                .createdDate(post.getCreatedDate().format(DateTimeFormatter.ofPattern("yyyy.MM.dd HH:mm")))
+                .build();
     }
 
-    @Getter
-    public static class Response {
-        private Long id;
-        private String title;
-        private String content;
-        private String writer;
-        private Long userId;
-        private List<?> comments;
-
-        public Response(Post post) {
-            this.id = post.getId();
-            this.title = post.getTitle();
-            this.content = post.getContent();
-            this.writer = post.getWriter();
-            this.userId = post.getUser() != null ? post.getUser().getId() : null;
-            this.comments = post.getComments() != null ?
-                    post.getComments().stream().map(CommentDto.Response::new).collect(Collectors.toList())
-                    : Collections.emptyList().reversed();
-        }
+    public Post toEntity() {
+        return Post.builder()
+                .id(id)
+                .title(title)
+                .content(content)
+                .writer(writer)
+                .view(view)
+                .createdDate(LocalDateTime.now())
+                .build();
     }
 }
+

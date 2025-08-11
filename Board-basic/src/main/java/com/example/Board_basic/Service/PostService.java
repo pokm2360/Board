@@ -7,11 +7,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.stream.Collectors;
+import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
@@ -19,42 +16,71 @@ public class PostService {
 
     private final PostRepository postRepository;
 
-    public List<PostDto.Response> findAll() {
-        return postRepository.findAll().stream()
-                .map(PostDto.Response::new)
-                .collect(Collectors.toList());
+    /**
+     * ✅ 전체 게시글 페이징 조회
+     */
+    public Page<Post> findAll(Pageable pageable) {
+        return postRepository.findAll(pageable);
     }
 
-    public Page<PostDto.Response> search(String keyword, Pageable pageable) {
-        return postRepository.findByTitleContaining(keyword, pageable)
-                .map(PostDto.Response::new);
+    /**
+     * ✅ 제목 키워드로 게시글 검색 + 페이징
+     */
+    public Page<Post> search(String keyword, Pageable pageable) {
+        return postRepository.findByTitleContaining(keyword, pageable);
     }
 
-    public PostDto.Response findById(Long id) {
-        Post post = postRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("Post not found with id: " + id));
-        return new PostDto.Response(post);
+    /**
+     * ✅ 게시글 상세 조회 + 조회수 증가
+     */
+    public PostDto findById(Long id) {
+        Post post = postRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("해당 게시글이 존재하지 않습니다."));
+        post.setView(post.getView() + 1); // 조회수 증가
+        postRepository.save(post);
+        return PostDto.fromEntity(post);
     }
 
-    @Transactional
-    public Long save(PostDto.Request dto) {
-        return postRepository.save(dto.toEntity()).getId();
+    /**
+     * ✅ 게시글 작성
+     */
+    public void save(PostDto dto) {
+        Post post = Post.builder()
+                .title(dto.getTitle())
+                .content(dto.getContent())
+                .writer(dto.getWriter())
+                .view(0)
+                .createdDate(LocalDateTime.now())
+                .build();
+
+        postRepository.save(post);
     }
 
-    @Transactional
-    public void update(Long id, PostDto.Request dto) {
-        Post post = postRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("Post not found with id: " + id));
-        post.update(dto.getTitle(), dto.getContent());
+    /**
+     * ✅ 게시글 수정
+     */
+    public void update(Long id, PostDto dto) {
+        Post post = postRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("해당 게시글이 존재하지 않습니다."));
+
+        post = post.toBuilder()
+                .title(dto.getTitle())
+                .content(dto.getContent())
+                .writer(dto.getWriter()) // 로그인 연동 시 수정 가능
+                .view(post.getView()) // 기존 조회수 유지
+                .createdDate(post.getCreatedDate()) // 기존 날짜 유지
+                .build();
+
+        postRepository.save(post);
     }
 
-    @Transactional
+    /**
+     * ✅ 게시글 삭제
+     */
     public void delete(Long id) {
-        if (!postRepository.existsById(id)) {
-            throw new NoSuchElementException("Cannot delete non-existing post with id: " + id);
-        }
         postRepository.deleteById(id);
     }
 }
+
+
+
 
 

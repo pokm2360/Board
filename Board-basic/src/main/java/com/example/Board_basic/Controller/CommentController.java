@@ -1,35 +1,40 @@
 package com.example.Board_basic.Controller;
 
-import com.example.Board_basic.Dto.CommentDto;
 import com.example.Board_basic.Service.CommentService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-@RestController
-@RequestMapping("/comments")
+@Controller
 @RequiredArgsConstructor
+@RequestMapping("/posts/{postId}/comments")
 public class CommentController {
 
     private final CommentService commentService;
 
+    // 댓글 등록
     @PostMapping
-    public ResponseEntity<?> createComment(@RequestBody CommentDto.Request dto) {
-        commentService.save(dto);
-        return ResponseEntity.ok("댓글이 등록되었습니다.");
+    public String add(@PathVariable Long postId,
+                      @RequestParam String content,
+                      @AuthenticationPrincipal(expression = "user.nickname") String nickname) {
+
+        if (nickname == null || nickname.isBlank()) {
+            return "redirect:/login";
+        }
+        commentService.add(postId, content, nickname);
+        return "redirect:/posts/read/" + postId;
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<?> updateComment(@PathVariable Long id, @RequestBody CommentDto.Request dto) {
-        dto.setId(id);
-        commentService.update(dto);
-        return ResponseEntity.ok("댓글이 수정되었습니다.");
-    }
+    // 댓글 삭제
+    @PostMapping("/{commentId}/delete")
+    public String delete(@PathVariable Long postId,
+                         @PathVariable Long commentId,
+                         @AuthenticationPrincipal(expression = "user.nickname") String nickname,
+                         @AuthenticationPrincipal(expression = "user.role") String role) {
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteComment(@PathVariable Long id) {
-        commentService.delete(id);
-        return ResponseEntity.ok("댓글이 삭제되었습니다.");
+        boolean isAdmin = "ROLE_ADMIN".equals(role);
+        commentService.delete(commentId, nickname, isAdmin);
+        return "redirect:/posts/read/" + postId;
     }
 }
-

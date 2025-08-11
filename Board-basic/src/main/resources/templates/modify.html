@@ -3,9 +3,14 @@
 <head>
     <title>회원정보 수정</title>
     <meta charset="UTF-8">
-    <link rel="stylesheet" href="/static/css/app.css">
+    <link rel="stylesheet" href="/css/app.css">
 </head>
 <body>
+
+<div th:replace="layout :: header"></div>
+<div th:replace="layout :: nav"></div>
+
+
 <div id="posts_list">
     <div class="container col-md-4">
         <form>
@@ -37,5 +42,9 @@
         <a th:href="@{/' }" role="button" class="btn btn-info bi bi-arrow-return-left"> 목록</a>
     </div>
 </div>
+
+<!-- Footer -->
+<div th:replace="layout :: footer"></div>
+
 </body>
 </html>
