@@ -4,15 +4,32 @@
     <title>검색 결과</title>
     <meta charset="UTF-8">
     <link rel="stylesheet" href="/css/app.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.6.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
 </head>
 <body>
 
 <div th:replace="layout :: header"></div>
 <div th:replace="layout :: nav"></div>
 
+<div id="posts_list" class="mt-3">
 
-<div id="posts_list">
-    <table id="table" class="table table-horizontal">
+    <!-- 검색어 + 범위 표시 -->
+    <h5>
+        <span th:text="'검색어: ' + ${keyword}">검색어: </span>
+        <small class="text-muted ml-2"
+               th:text="'범위: ' + (${scope}=='title' ? '제목' : (${scope}=='writer' ? '작성자' : '전체'))">
+            범위: 전체
+        </small>
+    </h5>
+
+    <!-- 결과 없음 -->
+    <div th:if="${#lists.isEmpty(searchList)}" class="text-muted my-3">
+        검색 결과가 없습니다.
+    </div>
+
+    <!-- 결과 테이블 -->
+    <table id="table" class="table table-horizontal" th:if="${!#lists.isEmpty(searchList)}">
         <thead id="thead">
         <tr>
             <th>번호</th>
@@ -24,32 +41,55 @@
         </thead>
         <tbody id="tbody">
         <tr th:each="post : ${searchList}">
-            <td th:text="${post.id}"></td>
-            <td><a th:href="@{/posts/read/{id}(id=${post.id})}" th:text="${post.title}"></a></td>
-            <td th:text="${post.writer}"></td>
-            <td th:text="${post.modifiedDate}"></td>
-            <td th:text="${post.view}"></td>
+            <td th:text="${post.id}">1</td>
+            <td>
+                <a th:href="@{/posts/read/{id}(id=${post.id})}" th:text="${post.title}">제목</a>
+            </td>
+            <td th:text="${post.writer}">작성자</td>
+            <td th:text="${#temporals.format(post.createdDate, 'yyyy-MM-dd HH:mm')}">2025-08-11 12:00</td>
+            <td th:text="${post.view}">0</td>
         </tr>
         </tbody>
     </table>
 
+    <!-- 글쓰기 버튼 -->
     <div class="text-right">
-        <a th:href="@{/posts/write}" class="btn btn-primary bi bi-pencil-fill"> 글쓰기</a>
+        <a th:href="@{/write}" class="btn btn-primary bi bi-pencil-fill"> 글쓰기</a>
     </div>
 
-    <div class="pagination justify-content-center">
-        <a th:href="@{/posts/search(keyword=${keyword}, page=${previous})}"
-           class="btn btn-lg bi bi-caret-left-square-fill"
-           th:classappend="${!hasPrev} ? ' disabled'"></a>
+    <!-- 페이지네이션  -->
+    <nav th:if="${totalPages > 1}">
+        <ul class="pagination justify-content-center">
 
-        <a th:href="@{/posts/search(keyword=${keyword}, page=${next})}"
-           class="btn btn-lg bi bi-caret-right-square-fill"
-           th:classappend="${!hasNext} ? ' disabled'"></a>
-    </div>
+            <!-- 이전 -->
+            <li th:classappend="${currentPage == 0} ? 'disabled'" class="page-item">
+                <a class="page-link"
+                   th:href="@{/posts/search(keyword=${keyword}, scope=${scope}, page=${currentPage - 1})}">이전</a>
+            </li>
+
+            <!-- 페이지 번호 -->
+            <li class="page-item"
+                th:each="pageNum : ${#numbers.sequence(0, totalPages - 1)}"
+                th:classappend="${pageNum == currentPage} ? 'active'">
+                <a class="page-link"
+                   th:href="@{/posts/search(keyword=${keyword}, scope=${scope}, page=${pageNum})}"
+                   th:text="${pageNum + 1}">1</a>
+            </li>
+
+            <!-- 다음 -->
+            <li th:classappend="${currentPage + 1 >= totalPages} ? 'disabled'" class="page-item">
+                <a class="page-link"
+                   th:href="@{/posts/search(keyword=${keyword}, scope=${scope}, page=${currentPage + 1})}">다음</a>
+            </li>
+
+        </ul>
+    </nav>
 </div>
 
-<!-- Footer -->
 <div th:replace="layout :: footer"></div>
+
+<div th:replace="layout :: scripts"></div>
 
 </body>
 </html>
+

@@ -29,22 +29,18 @@ public class PostController {
     @GetMapping({"/", "/list"})
     public String list(@RequestParam(defaultValue = "0") int page,
                        @RequestParam(required = false) String keyword,
+                       @RequestParam(defaultValue = "all") String scope,
                        Model model) {
-
         Pageable pageable = PageRequest.of(page, 10, Sort.by("id").descending());
-        Page<Post> postPage;
-
-        if (keyword != null && !keyword.isBlank()) {
-            postPage = postService.search(keyword, pageable);
-            model.addAttribute("keyword", keyword);
-        } else {
-            postPage = postService.findAll(pageable);
-        }
+        Page<Post> postPage = (keyword != null && !keyword.isBlank())
+                ? postService.search(keyword, scope, pageable)
+                : postService.findAll(pageable);
 
         model.addAttribute("posts", postPage.getContent());
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", postPage.getTotalPages());
-
+        model.addAttribute("keyword", keyword);
+        model.addAttribute("scope", scope);
         return "list.html";
     }
 
@@ -87,6 +83,35 @@ public class PostController {
         postService.delete(id);
         return "redirect:/list";
     }
+
+    // 게시글 검색
+    @GetMapping("/posts/search")
+    public String search(@RequestParam String keyword,
+                         @RequestParam(defaultValue = "all") String scope,
+                         @RequestParam(defaultValue = "0") int page,
+                         Model model) {
+        if (page < 0) page = 0;
+        Pageable pageable = PageRequest.of(page, 10, Sort.by("id").descending());
+        Page<Post> result = postService.search(keyword, scope, pageable);
+
+        int last = Math.max(0, result.getTotalPages() - 1);
+        if (page > last && result.getTotalPages() > 0) {
+            pageable = PageRequest.of(last, 10, Sort.by("id").descending());
+            result = postService.search(keyword, scope, pageable);
+            page = last;
+        }
+
+        model.addAttribute("keyword", keyword);
+        model.addAttribute("scope", scope);
+        model.addAttribute("searchList", result.getContent());
+
+        // ✅ 리스트와 동일하게 쓰는 변수 추가
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", result.getTotalPages());
+
+        return "search.html";
+    }
+
 
 }
 

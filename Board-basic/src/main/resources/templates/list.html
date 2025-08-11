@@ -44,9 +44,10 @@
     <nav th:if="${totalPages > 1}">
         <ul class="pagination justify-content-center">
 
-            <!-- 이전 버튼 -->
+            <!-- 이전 -->
             <li th:classappend="${currentPage == 0} ? 'disabled'" class="page-item">
-                <a class="page-link" th:href="@{/list(page=${currentPage - 1}, keyword=${keyword})}">이전</a>
+                <a class="page-link"
+                   th:href="@{/list(page=${currentPage - 1}, keyword=${keyword}, scope=${scope})}">이전</a>
             </li>
 
             <!-- 페이지 번호 -->
@@ -54,14 +55,16 @@
                 th:each="pageNum : ${#numbers.sequence(0, totalPages - 1)}"
                 th:classappend="${pageNum == currentPage} ? 'active'">
                 <a class="page-link"
-                   th:href="@{/list(page=${pageNum}, keyword=${keyword})}"
+                   th:href="@{/list(page=${pageNum}, keyword=${keyword}, scope=${scope})}"
                    th:text="${pageNum + 1}">1</a>
             </li>
 
-            <!-- 다음 버튼 -->
+            <!-- 다음 -->
             <li th:classappend="${currentPage + 1 >= totalPages} ? 'disabled'" class="page-item">
-                <a class="page-link" th:href="@{/list(page=${currentPage + 1}, keyword=${keyword})}">다음</a>
+                <a class="page-link"
+                   th:href="@{/list(page=${currentPage + 1}, keyword=${keyword}, scope=${scope})}">다음</a>
             </li>
+
         </ul>
     </nav>
 </div>
@@ -70,6 +73,10 @@
 
 <!-- Footer -->
 <div th:replace="layout :: footer"></div>
+
+<!--스크립트-->
+<div th:replace="layout :: scripts"></div>
+
 
 <!-- JS -->
 <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>

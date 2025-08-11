@@ -26,8 +26,14 @@ public class PostService {
     /**
      * ✅ 제목 키워드로 게시글 검색 + 페이징
      */
-    public Page<Post> search(String keyword, Pageable pageable) {
-        return postRepository.findByTitleContaining(keyword, pageable);
+    public Page<Post> search(String keyword, String scope, Pageable pageable) {
+        if (keyword == null || keyword.isBlank()) return postRepository.findAll(pageable);
+        String s = (scope == null || scope.isBlank()) ? "all" : scope;
+        return switch (s) {
+            case "title" -> postRepository.findByTitleContainingIgnoreCase(keyword, pageable);
+            case "writer" -> postRepository.findByWriterContainingIgnoreCase(keyword, pageable);
+            default -> postRepository.findByTitleContainingIgnoreCaseOrWriterContainingIgnoreCase(keyword, keyword, pageable);
+        };
     }
 
     /**
@@ -78,6 +84,7 @@ public class PostService {
     public void delete(Long id) {
         postRepository.deleteById(id);
     }
+
 }
 
 

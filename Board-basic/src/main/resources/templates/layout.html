@@ -1,3 +1,122 @@
+<!--<!DOCTYPE html>-->
+<!--<html xmlns:th="http://www.thymeleaf.org">-->
+<!--<head>-->
+<!--    <meta charset="UTF-8">-->
+<!--    <title th:replace="${title}">Board Service</title>-->
+
+<!--    &lt;!&ndash; CSS &ndash;&gt;-->
+<!--    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.6.0/font/bootstrap-icons.css">-->
+<!--    <link rel="stylesheet" href="/css/app.css">-->
+<!--    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">-->
+<!--</head>-->
+<!--<body>-->
+
+<!--&lt;!&ndash; Header &ndash;&gt;-->
+<!--<div th:fragment="header" id="header" class="d-flex bd-highlight">-->
+<!--    <a th:href="@{/}" class="p-2 flex-grow-1 bd-highlight">Board Service</a>-->
+<!--    <form th:action="@{/posts/search}" method="get" class="d-flex align-items-center" id="searchForm">-->
+<!--        <div class="input-group">-->
+<!--            &lt;!&ndash; 드롭다운: scope 선택 (그대로) &ndash;&gt;-->
+<!--            <div class="input-group-prepend dropdown">-->
+<!--                <button class="btn btn-outline-secondary dropdown-toggle"-->
+<!--                        type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"-->
+<!--                        id="scopeDropdownBtn"-->
+<!--                        th:text="${scope}=='title' ? '제목' : (${scope}=='writer' ? '작성자' : '전체')">전체</button>-->
+<!--                <div class="dropdown-menu">-->
+<!--                    <a class="dropdown-item" href="#" data-value="all">전체</a>-->
+<!--                    <a class="dropdown-item" href="#" data-value="title">제목</a>-->
+<!--                    <a class="dropdown-item" href="#" data-value="writer">작성자</a>-->
+<!--                </div>-->
+<!--            </div>-->
+
+<!--            &lt;!&ndash; 선택값 전달용 hidden &ndash;&gt;-->
+<!--            <input type="hidden" name="scope" id="scopeInput" th:value="${scope} ?: 'all'"/>-->
+
+<!--            &lt;!&ndash; 키워드 입력 &ndash;&gt;-->
+<!--            <input class="form-control" type="search" name="keyword" id="keywordInput"-->
+<!--                   placeholder="제목/작성자 검색" th:value="${keyword}"-->
+<!--                   required-->
+<!--                   oninvalid="this.setCustomValidity('검색어를 한 글자 이상 입력하세요.')"-->
+<!--                   oninput="this.setCustomValidity('')"/>-->
+
+<!--            &lt;!&ndash; 전송 &ndash;&gt;-->
+<!--            <div class="input-group-append">-->
+<!--                <button class="btn btn-outline-success" type="submit">검색</button>-->
+<!--            </div>-->
+<!--        </div>-->
+<!--    </form>-->
+<!--</div>-->
+
+<!--&lt;!&ndash; Nav &ndash;&gt;-->
+<!--<nav th:fragment="nav" id="nav">-->
+<!--    <div class="text-right">-->
+<!--        <span th:if="${loginUser != null}" class="mx-3" th:text="${loginUser.nickname + '님 안녕하세요!'}"></span>-->
+<!--        <a th:if="${loginUser != null}" th:href="@{/logout}" class="btn btn-outline-dark">로그아웃</a>-->
+<!--        <a th:if="${loginUser == null}" th:href="@{/loginform}" class="btn btn-outline-dark bi bi-lock-fill"> 로그인</a>-->
+<!--        <a th:if="${loginUser == null}" th:href="@{/join}" class="btn btn-outline-dark bi bi-person-circle"> 회원가입</a>-->
+<!--    </div>-->
+<!--</nav>-->
+
+<!--&lt;!&ndash; Footer &ndash;&gt;-->
+<!--<footer th:fragment="footer" id="footer">-->
+<!--    Powered by Kim Kyung Hwan-->
+<!--    <a href="https://github.com/" target="_blank" class="bi bi-github"></a>-->
+<!--    <i class="bi bi-reception-4"></i>-->
+<!--    <i class="bi bi-phone"> 010-9692-5549</i>-->
+<!--</footer>-->
+
+<!--&lt;!&ndash; JS &ndash;&gt;-->
+<!--<script>-->
+<!--    // 공백만 있거나 비어있으면 제출 막고 안내-->
+<!--  (function () {-->
+<!--    var form = document.getElementById('searchForm');-->
+<!--    var keyword = document.getElementById('keywordInput');-->
+
+<!--    if (!form || !keyword) return;-->
+
+<!--    form.addEventListener('submit', function (e) {-->
+<!--      var v = (keyword.value || '').trim();-->
+<!--      if (v.length < 1) {-->
+<!--        e.preventDefault();-->
+<!--        // 브라우저 기본 HTML5 메시지 대신 알림 사용-->
+<!--        alert('검색어를 한 글자 이상 입력하세요.');-->
+<!--        keyword.focus();-->
+<!--      } else {-->
+<!--        // 뒤/앞 공백 제거한 값으로 제출-->
+<!--        keyword.value = v;-->
+<!--      }-->
+<!--    });-->
+<!--  })();-->
+
+<!--    (function () {-->
+<!--   var menu = document.querySelectorAll('#scopeDropdownBtn + .dropdown-menu .dropdown-item');-->
+<!--   var scopeInput = document.getElementById('scopeInput');-->
+<!--   var scopeBtn = document.getElementById('scopeDropdownBtn');-->
+
+<!--   function labelFor(v) {-->
+<!--     if (v === 'title') return '제목';-->
+<!--     if (v === 'writer') return '작성자';-->
+<!--     return '전체';-->
+<!--   }-->
+
+<!--   menu.forEach(function (item) {-->
+<!--     item.addEventListener('click', function (e) {-->
+<!--       e.preventDefault();-->
+<!--       var v = this.getAttribute('data-value');-->
+<!--       scopeInput.value = v;-->
+<!--       scopeBtn.textContent = labelFor(v);-->
+<!--     });-->
+<!--   });-->
+
+<!--   // 초기 라벨 동기화-->
+<!--   if (scopeInput && scopeBtn) {-->
+<!--     scopeBtn.textContent = labelFor(scopeInput.value || 'all');-->
+<!--   }-->
+<!-- })();-->
+<!--</script>-->
+
+<!--</body>-->
+<!--</html>-->
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
@@ -12,16 +131,44 @@
 <body>
 
 <!-- Header -->
-<div th:fragment="header" id="header" class="d-flex bd-highlight">
-    <a th:href="@{/}" class="p-2 flex-grow-1 bd-highlight">Board Service</a>
-    <form th:action="@{/search}" method="get" class="form-inline p-2 bd-highlight">
-        <input type="text" name="keyword" class="form-control" placeholder="검색">
-        <button class="btn btn-success bi bi-search"></button>
+<div th:fragment="header" id="header" class="d-flex bd-highlight align-items-center px-2 py-2 border-bottom">
+    <a th:href="@{/}" class="p-2 flex-grow-1 bd-highlight font-weight-bold">Board Service</a>
+
+    <form th:action="@{/posts/search}" method="get" class="d-flex align-items-center" id="searchForm">
+        <div class="input-group">
+            <!-- 드롭다운: scope 선택 -->
+            <div class="input-group-prepend dropdown" style="position: relative;">
+                <button class="btn btn-outline-secondary dropdown-toggle"
+                        type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
+                        id="scopeDropdownBtn"
+                        th:text="${scope}=='title' ? '제목' : (${scope}=='writer' ? '작성자' : '전체')">전체</button>
+                <div class="dropdown-menu">
+                    <a class="dropdown-item" href="#" data-value="all">전체</a>
+                    <a class="dropdown-item" href="#" data-value="title">제목</a>
+                    <a class="dropdown-item" href="#" data-value="writer">작성자</a>
+                </div>
+            </div>
+
+            <!-- 선택값 전달용 hidden -->
+            <input type="hidden" name="scope" id="scopeInput" th:value="${scope} ?: 'all'"/>
+
+            <!-- 키워드 입력 -->
+            <input class="form-control" type="search" name="keyword" id="keywordInput"
+                   placeholder="제목/작성자 검색" th:value="${keyword}"
+                   required
+                   oninvalid="this.setCustomValidity('검색어를 한 글자 이상 입력하세요.')"
+                   oninput="this.setCustomValidity('')"/>
+
+            <!-- 전송 -->
+            <div class="input-group-append">
+                <button class="btn btn-outline-success" type="submit">검색</button>
+            </div>
+        </div>
     </form>
 </div>
 
 <!-- Nav -->
-<nav th:fragment="nav" id="nav">
+<nav th:fragment="nav" id="nav" class="container py-2">
     <div class="text-right">
         <span th:if="${loginUser != null}" class="mx-3" th:text="${loginUser.nickname + '님 안녕하세요!'}"></span>
         <a th:if="${loginUser != null}" th:href="@{/logout}" class="btn btn-outline-dark">로그아웃</a>
@@ -31,17 +178,93 @@
 </nav>
 
 <!-- Footer -->
-<footer th:fragment="footer" id="footer">
+<footer th:fragment="footer" id="footer" class="border-top py-3 text-center text-muted">
     Powered by Kim Kyung Hwan
-    <a href="https://github.com/" target="_blank" class="bi bi-github"></a>
-    <i class="bi bi-reception-4"></i>
-    <i class="bi bi-phone"> 010-9692-5549</i>
+    <a href="https://github.com/" target="_blank" class="bi bi-github ml-2"></a>
+    <i class="bi bi-reception-4 ml-2"></i>
+    <i class="bi bi-phone ml-2"> 010-9692-5549</i>
 </footer>
 
-<!-- JS -->
-<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
-<script src="/js/app.js"></script>
+<!-- Scripts (이 프래그먼트를 각 페이지 하단에서 include 하세요) -->
+<div th:fragment="scripts">
+    <!-- 순서 중요: jQuery → Popper → Bootstrap -->
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+
+    <!-- 드롭다운 라벨/검색 검증 스크립트 -->
+    <script>
+        // 드롭다운 수동 토글 (Bootstrap JS 없이 동작)
+        (function () {
+          var btn  = document.getElementById('scopeDropdownBtn');
+          var menu = btn ? btn.nextElementSibling : null;
+
+          if (!btn || !menu) return;
+
+          function close() {
+            menu.classList.remove('show');
+            btn.setAttribute('aria-expanded', 'false');
+          }
+
+          btn.addEventListener('click', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            var willShow = !menu.classList.contains('show');
+            if (willShow) {
+              menu.classList.add('show');
+              btn.setAttribute('aria-expanded', 'true');
+            } else {
+              close();
+            }
+          });
+
+          // 메뉴 아이템 클릭 시 값 반영 + 닫기
+          menu.querySelectorAll('.dropdown-item').forEach(function (item) {
+            item.addEventListener('click', function (e) {
+              e.preventDefault();
+              var v = this.getAttribute('data-value');
+              var scopeInput = document.getElementById('scopeInput');
+              var label = (v === 'title') ? '제목' : (v === 'writer') ? '작성자' : '전체';
+              if (scopeInput) scopeInput.value = v;
+              btn.textContent = label;
+              close();
+            });
+          });
+
+          // 바깥 클릭 시 닫기
+          document.addEventListener('click', function (e) {
+            if (!menu.contains(e.target) && e.target !== btn) {
+              close();
+            }
+          });
+
+          // 초기 라벨 동기화
+          (function initLabel () {
+            var scopeInput = document.getElementById('scopeInput');
+            var v = (scopeInput && scopeInput.value) ? scopeInput.value : 'all';
+            btn.textContent = (v === 'title') ? '제목' : (v === 'writer') ? '작성자' : '전체';
+          })();
+        })();
+
+        // 검색어 공백 방지 (그대로 유지)
+        (function () {
+          var form = document.getElementById('searchForm');
+          var keyword = document.getElementById('keywordInput');
+          if (!form || !keyword) return;
+          form.addEventListener('submit', function (e) {
+            var v = (keyword.value || '').trim();
+            if (v.length < 1) {
+              e.preventDefault();
+              alert('검색어를 한 글자 이상 입력하세요.');
+              keyword.focus();
+            } else {
+              keyword.value = v;
+            }
+          });
+        })();
+    </script>
+
+</div>
 
 </body>
 </html>

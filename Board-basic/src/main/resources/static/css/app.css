@@ -1,3 +1,4 @@
+/* Base */
 html, body {
     height: 100%;
     margin: 0;
@@ -6,10 +7,18 @@ html, body {
     font-size: 14px;
 }
 
-/* 헤더 */
+/* ===== Theme Colors ===== */
+:root{
+    --brand: #69cdaa;          /* 헤더/버튼 기본색 */
+    --brand-hover: #57b996;    /* 호버 */
+    --brand-contrast: #ffffff; /* 버튼 글자색 */
+    --text: #212529;
+}
+
+/* ===== Header ===== */
 #header {
-    background: #69cdaa;
-    color: #ffffff;
+    background: var(--brand);
+    color: var(--brand-contrast);
     padding: 25px 30px;
     font-size: 3em;
     display: flex;
@@ -17,19 +26,96 @@ html, body {
     align-items: center;
 }
 #header a {
-    color: #ffffff;
+    color: var(--brand-contrast);
     text-decoration: none;
 }
 #header form {
     display: flex;
     align-items: center;
 }
-#header input[type="text"] {
+
+/* 검색 인풋/버튼 공통 높이 */
+#header .input-group .btn,
+#header .input-group .form-control {
     height: 35px;
-    margin-right: 5px;
 }
 
-/* 네비게이션 */
+/* 인풋(border 색/포커스) */
+#header .form-control {
+    border-color: var(--brand);
+    box-shadow: none;
+    color: var(--text);
+}
+#header .form-control::placeholder { color: rgba(33,37,41,.6); }
+#header .form-control:focus {
+    border-color: var(--brand-hover);
+    box-shadow: 0 0 0 .2rem rgba(87,185,150,.15);
+}
+
+/* 좌측 드롭다운 버튼 */
+#header .btn-scope,
+#header .input-group-prepend .btn {
+    background-color: var(--brand);
+    border-color: var(--brand);
+    color: var(--brand-contrast);
+}
+#header .btn-scope:hover,
+#header .btn-scope:focus,
+#header .input-group-prepend .btn:hover,
+#header .input-group-prepend .btn:focus {
+    background-color: var(--brand-hover);
+    border-color: var(--brand-hover);
+    color: var(--brand-contrast);
+}
+
+/* 우측 검색 버튼 */
+#header .btn-search,
+#header .input-group-append .btn {
+    background-color: var(--brand);
+    border-color: var(--brand);
+    color: var(--brand-contrast);
+}
+#header .btn-search:hover,
+#header .btn-search:focus,
+#header .input-group-append .btn:hover,
+#header .input-group-append .btn:focus {
+    background-color: var(--brand-hover);
+    border-color: var(--brand-hover);
+    color: var(--brand-contrast);
+}
+
+/* 버튼/인풋 라운드 자연스럽게 */
+#header .input-group > .input-group-prepend > .btn {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}
+#header .input-group > .form-control {
+    border-radius: 0;
+}
+#header .input-group > .input-group-append > .btn {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+}
+
+/* 드롭다운 메뉴 가독성 & 레이어 */
+#header .input-group-prepend.dropdown { position: relative; }
+#header .dropdown-menu{
+    background: #fff;
+    border: 1px solid rgba(0,0,0,.15);
+    min-width: 140px;
+    z-index: 1050;
+}
+#header .dropdown-menu.show{ display: block; } /* 안전장치 */
+#header .dropdown-item{
+    color: var(--text) !important;  /* 흰 배경에서 글자 보이도록 */
+}
+#header .dropdown-item:hover,
+#header .dropdown-item:focus{
+    background: #e6f7f1;
+    color: #0b5d4b !important;
+}
+
+/* ===== Nav ===== */
 #nav {
     background: #f5f5f5;
     padding: 10px 30px;
@@ -38,12 +124,11 @@ html, body {
     text-align: right;
 }
 
-/* 게시글 리스트 */
+/* ===== Posts List ===== */
 #posts_list {
     max-width: 1100px;
     margin: 30px auto;
 }
-
 #table {
     width: 100%;
     border-collapse: collapse;
@@ -51,7 +136,7 @@ html, body {
 }
 #thead {
     background: #434343;
-    color: white;
+    color: #fff;
 }
 #table th, #table td {
     text-align: center;
@@ -72,7 +157,7 @@ html, body {
     margin-top: 10px;
 }
 
-/* 페이지네이션 */
+/* ===== Pagination ===== */
 .pagination-container {
     text-align: center;
     margin: 20px 0;
@@ -83,7 +168,7 @@ html, body {
     font-size: 18px;
 }
 
-/* 푸터 */
+/* ===== Footer ===== */
 #footer {
     position: fixed;
     width: 100%;
@@ -103,23 +188,20 @@ html, body {
     text-decoration: underline;
 }
 
-/* 로그인 이미지 버튼 아이콘 크기 */
-#img {
-    width: 20px;
-    height: auto;
-    padding-bottom: 4px;
-}
+/* 로그인 이미지 아이콘 */
+#img { width: 20px; height: auto; padding-bottom: 4px; }
 
 /* 유효성 빨간 글자 */
-#valid {
-    font-size: xx-small;
-    color: red;
+#valid { font-size: xx-small; color: red; }
+
+/* 댓글 카드 여백 */
+.card { margin-top: 20px; }
+
+#nav.container {
+  max-width: 100% !important;
+  width: 100%;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  padding-left: 30px;   /* 기존 스타일 유지 */
+  padding-right: 30px;  /* 필요시 값 조절 */
 }
-
-/* 댓글 폼 여백 */
-.card {
-    margin-top: 20px;
-}
-
-
-
