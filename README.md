@@ -2,6 +2,7 @@ Board Service — README
 스프링부트 + Thymeleaf 게시판.
 목록/검색/페이지네이션/좋아요 토글(AJAX)/댓글 & 대댓글/고유 조회수/로그인 UI까지 포함.
 
+<img width="1919" height="890" alt="Image" src="https://github.com/user-attachments/assets/4cd84215-2d60-4185-87cc-5d8c05399a06" />
 
 Quick Start
 bash
